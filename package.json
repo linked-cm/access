@@ -1,0 +1,33 @@
+{
+  "name": "@_linked/access",
+  "description": "Create Now access contracts — ODRL-based grants, selectors, conditions, and the portable authorization evaluation interface (plan-029 T7).",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "linkedPackage": true,
+  "main": "lib/esm/index.js",
+  "exports": {
+    ".": {
+      "types": "./lib/esm/index.d.ts",
+      "development": "./src/index.ts",
+      "import": "./lib/esm/index.js"
+    },
+    "./*": {
+      "types": "./lib/esm/*.d.ts",
+      "development": "./src/*.ts",
+      "import": "./lib/esm/*.js"
+    }
+  },
+  "scripts": {
+    "build": "npm exec linked build",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --config jest.config.cjs"
+  },
+  "devDependencies": {
+    "@_linked/cli": "^1.11.1",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.13.14",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "5.7.3"
+  }
+}
