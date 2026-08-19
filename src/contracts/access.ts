@@ -44,8 +44,9 @@ export const ODRL_TERMS = {
  * not a string: `assertActionName` rejects anything else at every boundary.
  */
 export const ACTION_NAMES = [
-  // generic data-plane verbs
-  'data.read', 'data.create', 'data.update', 'data.delete',
+  // generic data-plane verbs (`data.aggregate` permits counts/rollups WITHOUT
+  // implying instance reads — the aggregate-not-instance rule in the evaluator)
+  'data.read', 'data.create', 'data.update', 'data.delete', 'data.aggregate',
   // Documents capability (T9b wires these to the studio surfaces)
   'documents.read', 'documents.ingest', 'documents.review', 'documents.map',
   'documents.commit', 'documents.remove', 'documents.invite',
@@ -130,6 +131,13 @@ export interface AccessGrant {
   validity?: AccessValidity;
   delegation?: AccessDelegation;
   provenance: AccessProvenance;
+  /**
+   * Present on RE-GRANTED (delegated) grants: the parent grant and this grant's
+   * depth in the delegation chain (parent depth + 1). The evaluator enforces the
+   * parent's attenuation bounds at EVALUATION time, so a stored-but-overbroad
+   * delegation still never grants anything.
+   */
+  derivedFrom?: { grantId: string; depth: number };
   /** Monotonic per policy dataset; part of every cache key and decision. */
   policyVersion: number;
 }
