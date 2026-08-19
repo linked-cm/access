@@ -118,6 +118,13 @@ export interface AccessProvenance {
   grantedAt: string;
   /** e.g. a membership IRI (reified org:Membership is the membership model). */
   basis?: string;
+  /**
+   * Display HINT for the assignee, never identity: e.g. the email an invite
+   * was typed as, kept so a person who has never signed in still renders as
+   * something human. Real names come from the profile store at read time and
+   * always win over this.
+   */
+  assigneeLabel?: string;
 }
 
 export interface AccessGrant {

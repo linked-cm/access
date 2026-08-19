@@ -27,6 +27,7 @@ export class AccessGrantEntity extends Shape {
   static revokeGrant(input: { grantId: string; projectId: string }): Promise<any> { return Server.call(this, 'revokeGrant', input); }
   static effectiveForActor(input: { projectId: string; subjectWebId?: string }): Promise<any[]> { return Server.call(this, 'effectiveForActor', input); }
   static subjectsForTarget(input: { target: any }): Promise<any[]> { return Server.call(this, 'subjectsForTarget', input); }
+  static resolveSubjects(input: { projectId: string; webIds: string[] }): Promise<Record<string, { name?: string; email?: string }>> { return Server.call(this, 'resolveSubjects', input); }
 
   @objectProperty({ path: cnacl.assignee, maxCount: 1 }) get assignee(): string { return ''; }
   @literalProperty({ path: cnacl.effect, maxCount: 1 }) get effect(): string { return 'permit'; }

@@ -32,6 +32,12 @@ export interface AccessManagementApi {
   /** subjectWebId omitted = the caller asks about THEMSELVES (always permitted). */
   effectiveForActor(input: { actorWebId: string; projectId: string; subjectWebId?: string }): Promise<EffectiveGrantEntry[]>;
   subjectsForTarget(input: { actorWebId: string; target: AccessSelector }): Promise<TargetSubjectEntry[]>;
+  /**
+   * WebID → human display data from the host's profile store (name, email).
+   * Same gate as the grant views. Unknown WebIDs simply come back empty —
+   * the UI falls back to the grant's assigneeLabel hint, then the WebID.
+   */
+  resolveSubjects(input: { actorWebId: string; projectId: string; webIds: string[] }): Promise<Record<string, { name?: string; email?: string }>>;
 }
 
 const API_SLOT = Symbol.for('@_linked/access.managementApi');

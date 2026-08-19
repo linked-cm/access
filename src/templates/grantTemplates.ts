@@ -68,6 +68,8 @@ export interface PropertyRefinement {
 export interface ApplyTemplateInput {
   template: GrantTemplateId;
   assignee: string;
+  /** Display hint recorded on provenance (e.g. the invite email) — see AccessProvenance.assigneeLabel. */
+  assigneeLabel?: string;
   scope: AccessSelector;
   refinements?: PropertyRefinement[];
   grantedBy: string;
@@ -99,7 +101,7 @@ export function templateGrants(input: ApplyTemplateInput): AccessGrant[] {
     actions: [...template.actions],
     target: input.scope,
     conditions: [],
-    provenance: { grantedBy: input.grantedBy, grantedAt: input.now, basis: `${TEMPLATE_BASIS_PREFIX}${template.id}` },
+    provenance: { grantedBy: input.grantedBy, grantedAt: input.now, basis: `${TEMPLATE_BASIS_PREFIX}${template.id}`, ...(input.assigneeLabel ? { assigneeLabel: input.assigneeLabel } : {}) },
     policyVersion: input.policyVersion,
   };
   const refinements = (input.refinements ?? []).map((refinement): AccessGrant => ({
@@ -109,7 +111,7 @@ export function templateGrants(input: ApplyTemplateInput): AccessGrant[] {
     actions: [...refinement.actions],
     target: { kind: 'property', projectId: projectIdOf(input.scope), classIri: refinement.classIri, propertyIri: refinement.propertyIri },
     conditions: [],
-    provenance: { grantedBy: input.grantedBy, grantedAt: input.now, basis: PINNED_BASIS },
+    provenance: { grantedBy: input.grantedBy, grantedAt: input.now, basis: PINNED_BASIS, ...(input.assigneeLabel ? { assigneeLabel: input.assigneeLabel } : {}) },
     policyVersion: input.policyVersion,
   }));
   return [base, ...refinements];

@@ -45,4 +45,8 @@ export class AccessManagementProvider extends ShapeProvider {
   async subjectsForTarget(input: { target: any }) {
     return accessManagementApi().subjectsForTarget({ target: input.target, actorWebId: actor(this) });
   }
+
+  async resolveSubjects(input: { projectId: string; webIds: string[] }) {
+    return accessManagementApi().resolveSubjects({ ...input, actorWebId: actor(this) });
+  }
 }
