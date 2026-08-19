@@ -14,7 +14,7 @@
 import { DeleteBuilder } from '@_linked/core/queries/DeleteBuilder';
 import type { IDataset } from '@_linked/core/interfaces/IDataset';
 import { type AccessGrant } from '../contracts/access.js';
-import type { PolicyRepository } from '../evaluator/policyRepository.js';
+import type { WritablePolicyRepository } from '../evaluator/policyRepository.js';
 import { AccessGrantEntity, PolicyRegistryEntity } from '../shapes/AccessGrantEntity.js';
 import { grantFromPayload, grantToValues } from './grantMapping.js';
 
@@ -22,7 +22,7 @@ const REGISTRY_ID = 'https://data.create.now/access#registry';
 
 type ExecTarget = { exec: (target?: IDataset) => Promise<unknown> };
 
-export class LinkedPolicyRepository implements PolicyRepository {
+export class LinkedPolicyRepository implements WritablePolicyRepository {
   constructor(private readonly ds?: IDataset) {}
 
   async put(grant: AccessGrant): Promise<void> {

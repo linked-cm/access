@@ -15,7 +15,15 @@ export interface PolicyRepository {
   policyVersion(): Promise<number>;
 }
 
-export class InMemoryPolicyRepository implements PolicyRepository {
+/** A repository that also accepts writes (both shipped adapters do). */
+export interface WritablePolicyRepository extends PolicyRepository {
+  /** Idempotent upsert; bumps the policy version. */
+  put(grant: AccessGrant): void | Promise<void>;
+  /** Removes the grant if present; bumps the version only when it was. */
+  revoke(grantId: string): void | Promise<void>;
+}
+
+export class InMemoryPolicyRepository implements WritablePolicyRepository {
   private readonly grants = new Map<string, AccessGrant>();
   private version = 0;
 

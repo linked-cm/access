@@ -7,10 +7,20 @@
     "downlevelIteration": true,
     "esModuleInterop": true,
     "pretty": true,
-    "lib": ["ES2022", "DOM"],
-    "types": ["node"],
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
+    "types": [
+      "node"
+    ],
     "skipLibCheck": true
   },
-  "files": ["./src/index.ts"],
-  "include": ["./src/backend.ts"]
+  "files": [
+    "./src/index.ts",
+    "./src/storage.ts"
+  ],
+  "include": [
+    "./src/backend.ts"
+  ]
 }
