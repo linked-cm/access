@@ -1,6 +1,6 @@
 {
   "name": "@_linked/access",
-  "description": "Create Now access contracts — ODRL-based grants, selectors, conditions, and the portable authorization evaluation interface (plan-029 T7).",
+  "description": "Create Now access contracts \u2014 ODRL-based grants, selectors, conditions, and the portable authorization evaluation interface (plan-029 T7).",
   "version": "0.1.0",
   "type": "module",
   "private": true,
@@ -21,6 +21,9 @@
   "scripts": {
     "build": "npm exec linked build",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --config jest.config.cjs"
+  },
+  "dependencies": {
+    "@_linked/core": "^2.16.0"
   },
   "devDependencies": {
     "@_linked/cli": "^1.11.1",
