@@ -10,6 +10,7 @@
  * precedent: SourceDocument.renditionManifest.
  */
 import { Shape } from '@_linked/core/shapes/Shape';
+import { Server } from '@_linked/server-utils/utils/Server';
 import { literalProperty, objectProperty } from '@_linked/core/shapes/SHACL';
 import { cnacl } from '../ontologies/cnacl.js';
 import { linkedShape } from '../package.js';
@@ -17,6 +18,16 @@ import { linkedShape } from '../package.js';
 @linkedShape
 export class AccessGrantEntity extends Shape {
   static targetClass = cnacl.AccessGrant;
+
+  /** T9c management RPCs — served by AccessManagementProvider. */
+  static templates(): Promise<any[]> { return Server.call(this, 'templates'); }
+  static grantsForProject(input: { projectId: string }): Promise<any[]> { return Server.call(this, 'grantsForProject', input); }
+  static previewTemplate(input: any): Promise<any[]> { return Server.call(this, 'previewTemplate', input); }
+  static applyTemplate(input: any): Promise<any[]> { return Server.call(this, 'applyTemplate', input); }
+  static revokeGrant(input: { grantId: string; projectId: string }): Promise<any> { return Server.call(this, 'revokeGrant', input); }
+  static effectiveForActor(input: { projectId: string; subjectWebId?: string }): Promise<any[]> { return Server.call(this, 'effectiveForActor', input); }
+  static subjectsForTarget(input: { target: any }): Promise<any[]> { return Server.call(this, 'subjectsForTarget', input); }
+
   @objectProperty({ path: cnacl.assignee, maxCount: 1 }) get assignee(): string { return ''; }
   @literalProperty({ path: cnacl.effect, maxCount: 1 }) get effect(): string { return 'permit'; }
   @literalProperty({ path: cnacl.action }) get actions(): string[] { return []; }

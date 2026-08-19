@@ -17,6 +17,8 @@ export interface PolicyRepository {
 
 /** A repository that also accepts writes (both shipped adapters do). */
 export interface WritablePolicyRepository extends PolicyRepository {
+  /** Every stored grant, revoked ones included — the management/audit view (T9c). */
+  allGrants(): Promise<AccessGrant[]> | AccessGrant[];
   /** Idempotent upsert; bumps the policy version. */
   put(grant: AccessGrant): void | Promise<void>;
   /** Removes the grant if present; bumps the version only when it was. */
@@ -51,6 +53,10 @@ export class InMemoryPolicyRepository implements WritablePolicyRepository {
 
   async grantById(grantId: string): Promise<AccessGrant | undefined> {
     return this.grants.get(grantId);
+  }
+
+  allGrants(): AccessGrant[] {
+    return [...this.grants.values()];
   }
 
   async policyVersion(): Promise<number> {

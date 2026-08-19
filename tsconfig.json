@@ -18,7 +18,8 @@
   },
   "files": [
     "./src/index.ts",
-    "./src/storage.ts"
+    "./src/storage.ts",
+    "./src/backend.ts"
   ],
   "include": [
     "./src/backend.ts"

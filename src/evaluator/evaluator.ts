@@ -147,6 +147,10 @@ export class AccessEvaluator implements AuthorizationEvaluationService {
 }
 
 function withinValidity(grant: AccessGrant, at: string): boolean {
+  // A revoked grant is dead at ANY instant — even one inside its validity
+  // window and even for evaluations dated before the revocation: history is
+  // for audit, not for retroactive decisions.
+  if (grant.revocation) return false;
   if (grant.validity?.from && at < grant.validity.from) return false;
   if (grant.validity?.until && at >= grant.validity.until) return false;
   return true;

@@ -138,6 +138,12 @@ export interface AccessGrant {
    * delegation still never grants anything.
    */
   derivedFrom?: { grantId: string; depth: number };
+  /**
+   * T9c: revocation is an EVENT, not a hard delete — the grant stays in the
+   * store (history keeps actor + time) but never evaluates again. Revoking a
+   * delegation parent kills the chain the same way expiry does.
+   */
+  revocation?: { revokedBy: string; revokedAt: string };
   /** Monotonic per policy dataset; part of every cache key and decision. */
   policyVersion: number;
 }
@@ -238,6 +244,11 @@ export function assertAccessGrant(value: unknown): asserts value is AccessGrant 
     else if (condition.kind === 'role') { if (!['owner', 'admin', 'member', 'viewer'].includes(condition.role)) throw new AccessContractError(`grant.conditions[${index}]: unknown role`); }
     else if (condition.kind === 'resolver') { if (!['boundary', 'vc', 'chain'].includes(condition.resolver)) throw new AccessContractError(`grant.conditions[${index}]: unknown resolver`); }
     else throw new AccessContractError(`grant.conditions[${index}]: unknown condition kind`);
+  }
+  if (grant.revocation) {
+    if (!grant.revocation.revokedBy || Number.isNaN(Date.parse(grant.revocation.revokedAt))) {
+      throw new AccessContractError('grant.revocation requires revokedBy and an ISO revokedAt');
+    }
   }
   if (grant.validity) {
     const { from, until } = grant.validity;

@@ -61,6 +61,12 @@ export class LinkedPolicyRepository implements WritablePolicyRepository {
     return payload ? grantFromPayload(payload) : undefined;
   }
 
+  async allGrants(): Promise<AccessGrant[]> {
+    const rows = (await (AccessGrantEntity.select((item: any) => [item.payload]) as unknown as ExecTarget)
+      .exec(this.ds)) as Array<{ payload?: string }>;
+    return (rows ?? []).filter((row) => row?.payload).map((row) => grantFromPayload(row.payload!));
+  }
+
   async policyVersion(): Promise<number> {
     const rows = (await (PolicyRegistryEntity.select((item: any) => [item.version])
       .where((item: any) => item.equals({ id: REGISTRY_ID })) as unknown as ExecTarget)

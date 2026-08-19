@@ -7,3 +7,6 @@ export * from './resolvers/boundary.js';
 // consumers (capability manifests, frontend bundles) never drag @_linked/core
 // or shape registration in transitively. Storage consumers import
 // `@_linked/access/storage` (or its deep subpaths).
+export * from './templates/grantTemplates.js';
+export * from './queries/effectiveAccess.js';
+export * from './management.js';
