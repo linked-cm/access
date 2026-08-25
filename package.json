@@ -1,6 +1,6 @@
 {
   "name": "@_linked/access",
-  "description": "Create Now access contracts \u2014 ODRL-based grants, selectors, conditions, and the portable authorization evaluation interface (plan-029 T7).",
+  "description": "Create Now access contracts — ODRL-based grants, selectors, conditions, and the portable authorization evaluation interface (plan-029 T7).",
   "version": "0.1.0",
   "type": "module",
   "private": true,
