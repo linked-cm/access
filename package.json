@@ -23,7 +23,7 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --config jest.config.cjs"
   },
   "dependencies": {
-    "@_linked/core": "^2.16.0",
+    "@_linked/core": "^2.17.0",
     "@_linked/server-utils": "^1.1.0"
   },
   "devDependencies": {
