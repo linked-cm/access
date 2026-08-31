@@ -43,9 +43,27 @@ export class LinkedPolicyRepository implements WritablePolicyRepository {
     const assignees = [...new Set([actorWebId, ...membershipIds])];
     const collected: AccessGrant[] = [];
     for (const assignee of assignees) {
-      const rows = (await (AccessGrantEntity.select((item: any) => [item.payload])
-        .where((item: any) => item.assignee.equals({ id: assignee })) as unknown as ExecTarget)
-        .exec(this.ds)) as Array<{ payload?: string }>;
+      /**
+       * Restored to the pre-fuseki-3 read behaviour, EXPLICITLY.
+       *
+       * This query is malformed too, a second instance of the same builder problem. Until 3.0.0 a
+       * failed request returned an empty result set, so this has always yielded "no grants" and
+       * the membership fallback has been doing the enforcing — the logs corroborate it: every
+       * decision reads `policyVersion=0 matched=[]`. Catching restores what has been shipping; it
+       * does not newly loosen anything.
+       *
+       * **But this IS an authorization input**, unlike the version counter: if grants ever exist,
+       * an unreadable grant store must not silently demote an actor to whatever the fallback
+       * allows. Hence the loud log, and hence the query needs fixing rather than guarding.
+       */
+      let rows: Array<{ payload?: string }> = [];
+      try {
+        rows = (await (AccessGrantEntity.select((item: any) => [item.payload])
+          .where((item: any) => item.assignee.equals({ id: assignee })) as unknown as ExecTarget)
+          .exec(this.ds)) as Array<{ payload?: string }>;
+      } catch (cause) {
+        console.warn(`[access] grant lookup failed for ${assignee}; falling back to memberships: ${cause instanceof Error ? cause.message : cause}`);
+      }
       for (const row of rows ?? []) {
         if (row?.payload) collected.push(grantFromPayload(row.payload));
       }
@@ -67,7 +85,29 @@ export class LinkedPolicyRepository implements WritablePolicyRepository {
     return (rows ?? []).filter((row) => row?.payload).map((row) => grantFromPayload(row.payload!));
   }
 
+  /**
+   * The policy version — a cache-invalidation counter, NOT an authorization input.
+   *
+   * Tolerant on purpose. `@_linked/fuseki` 3.0.0 makes a failed request throw where 2.x returned
+   * an empty result, and this query has been malformed all along (the same builder pattern
+   * `Shape.exists()` replaced, emitting a block Fuseki rejects with `Parse error`). The throw
+   * then propagated out of `AccessGrantDocumentAuthorization.permissions()` BEFORE any
+   * authorization logic ran, so the Documents route told people with access that they had none.
+   *
+   * Failing to read a counter is not a decision about anybody. No grant, role or condition
+   * depends on this number, so an unreadable version degrades to "assume it moved", never to
+   * "deny". A guard, not the fix — the query is still wrong, tracked in backlog-046.
+   */
   async policyVersion(): Promise<number> {
+    try {
+      return await this.readVersion();
+    } catch (cause) {
+      console.warn(`[access] policy version unreadable, treating as 0: ${cause instanceof Error ? cause.message : cause}`);
+      return 0;
+    }
+  }
+
+  private async readVersion(): Promise<number> {
     const rows = (await (PolicyRegistryEntity.select((item: any) => [item.version])
       .where((item: any) => item.equals({ id: REGISTRY_ID })) as unknown as ExecTarget)
       .exec(this.ds)) as Array<{ version?: string }>;
@@ -76,7 +116,12 @@ export class LinkedPolicyRepository implements WritablePolicyRepository {
   }
 
   private async bumpVersion(): Promise<void> {
-    const current = await this.policyVersion();
+    /**
+     * STRICT here, deliberately. A read failure that degraded to 0 would make the next bump
+     * write 1 and walk the counter backwards — and clients treat an unchanged-or-lower version
+     * as "decisions cannot have changed", so they would serve stale permissions after a revoke.
+     */
+    const current = await this.readVersion();
     await (DeleteBuilder.from(PolicyRegistryEntity, { id: REGISTRY_ID }) as unknown as ExecTarget).exec(this.ds);
     await (PolicyRegistryEntity.create({ version: String(current + 1) } as never).withId(REGISTRY_ID) as unknown as ExecTarget).exec(this.ds);
   }
