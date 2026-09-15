@@ -6,6 +6,27 @@
  */
 import { type AccessGrant, assertAccessGrant, deserializeGrant } from '../contracts/access.js';
 
+/**
+ * A grant store that could not be read.
+ *
+ * Grants are an AUTHORIZATION INPUT. An adapter that cannot read them knows
+ * nothing about the actor — which is not the same as knowing the actor holds
+ * no grants, and must never be reported as the latter. Every adapter raises
+ * this instead of returning `[]`, so the caller can render "policy
+ * unavailable" rather than a successful denial (or, where a fallback exists,
+ * an unintended permit).
+ *
+ * The policy VERSION is deliberately not covered by this: it is a
+ * cache-invalidation counter that no decision depends on, and
+ * `policyVersion()` stays tolerant of a failed read.
+ */
+export class PolicyReadError extends Error {
+  constructor(message: string, readonly cause?: unknown) {
+    super(message);
+    this.name = 'PolicyReadError';
+  }
+}
+
 export interface PolicyRepository {
   /** Every grant that could bear on the actor (direct + membership-derived). */
   grantsForActor(actorWebId: string, membershipIds: string[]): Promise<AccessGrant[]>;
