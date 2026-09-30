@@ -7,6 +7,7 @@
  * compilation entry (tsconfig `files`), which is what keeps these modules in
  * `lib/` at all — the build prunes anything unreachable from an entry.
  */
+import './shapes/index.js';
 export * from './repository/grantMapping.js';
 export * from './repository/linkedPolicyRepository.js';
 export * from './shapes/AccessGrantEntity.js';
