@@ -2,7 +2,7 @@
   "name": "@linked.cm/access",
   "description": "Access contracts for LINKED apps: ODRL-based grants, selectors and conditions, a portable authorization evaluator, and a Linked Query policy repository.",
   "license": "MIT",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/linked-cm/access.git"
